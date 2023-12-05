@@ -38,6 +38,7 @@ $executed_queries = {}
 
 # SQL custom logger
 class SQLLogger < ActiveSupport::LogSubscriber
+  ExecutedSQL = Struct.new(:sql, :called_from, keyword_init: true)
   def sql(event)
     # トランザクション開始・終了クエリは readonly なので外す
     # SHOW から始まるクエリは readonly なので外す
@@ -53,8 +54,14 @@ class SQLLogger < ActiveSupport::LogSubscriber
 
     # 実行された SQL を context と共に配列に入れる
     current_example = $executed_queries.keys.last
-    $executed_queries[current_example] << "SQL: #{event.payload[:sql]}"
-    $executed_queries[current_example] << "Called from: #{app_called_lines.join("\n")}"
+
+    # $executed_queries[current_example] << "SQL: #{event.payload[:sql]}"
+    # $executed_queries[current_example] << "Called from: #{app_called_lines.join("\n")}"
+
+    $executed_queries[current_example] << ExecutedSQL.new(
+      sql: event.payload[:sql],
+      called_from: app_called_lines.join("\n")
+    )
   end
 end
 
@@ -119,8 +126,9 @@ RSpec.configure do |config|
     examples.each do |example|
       readonly_query_report_file.puts "example: #{example}"
 
-      $executed_queries[example].each do |log|
-        readonly_query_report_file.puts log
+      $executed_queries[example].each do |executed_sql|
+        readonly_query_report_file.puts "SQL: #{executed_sql.sql}"
+        readonly_query_report_file.puts "Called from: #{executed_sql.called_from}"
       end
 
       readonly_query_report_file.puts "\n"
