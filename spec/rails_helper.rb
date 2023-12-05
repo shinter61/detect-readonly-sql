@@ -99,12 +99,6 @@ RSpec.configure do |config|
   config.filter_rails_from_backtrace!
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
-  
-  # config.before(:suite) do
-  #   ActiveSupport::Notifications.subscribe("sql.active_record") do |_name, _started, _finished, _unique_id, data|
-  #     binding.pry
-  #   end
-  # end
 
   # readonly なクエリのレポート用
   config.reporter.register_listener(ReporterListener.new, :example_started)

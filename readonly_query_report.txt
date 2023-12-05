@@ -1,8 +1,14 @@
-UsersController#index 正常時
+example: TweetsController#index 正常時
+SQL: SELECT `users`.* FROM `users` ORDER BY `users`.`id` ASC LIMIT 1
+Called from: /app/app/controllers/tweets_controller.rb:3:in `index'
+SQL: SELECT `tweets`.* FROM `tweets` WHERE `tweets`.`user_id` = 1
+Called from: /app/app/controllers/tweets_controller.rb:4:in `index'
+
+example: UsersController#index 正常時
 SQL: SELECT `users`.* FROM `users`
 Called from: /app/app/controllers/users_controller.rb:4:in `index'
 
-UsersController#show 正常時
+example: UsersController#show 正常時
 SQL: SELECT `users`.* FROM `users` WHERE `users`.`id` = 1 LIMIT 1
 Called from: /app/app/controllers/users_controller.rb:8:in `show'
 
