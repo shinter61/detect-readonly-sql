@@ -28,7 +28,7 @@ jobs:
               -X POST \
               -H "Authorization: token $GITHUB_TOKEN" \
               https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/issues/$PR_NUMBER/comments \
-              -d {"body": "Readonly endpoint exists!"}
+              -d '{"body": "Readonly endpoint exists!"}'
 
 workflows:
   version: 2
