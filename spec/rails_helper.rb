@@ -119,19 +119,21 @@ RSpec.configure do |config|
     readonly_query_report_filename = 'readonly_query_report.txt'
     readonly_query_report_file = File.new(readonly_query_report_filename, 'w')
 
+    readonly_query_report_file.puts "以下のテストケースが readonly なものです。reader に向けられないか検討してください。<br/>"
+
     examples = $executed_queries.keys
     examples.each do |example|
       # その example でのクエリが readonly か判定
       next unless $executed_queries[example].map(&:sql).all? { |sql| sql.slice(0..5) == 'SELECT' }
 
-      readonly_query_report_file.puts "example: #{example}"
+      readonly_query_report_file.puts "example: #{example} <br/>"
 
       $executed_queries[example].each do |executed_sql|
-        readonly_query_report_file.puts "SQL: #{executed_sql.sql}"
-        readonly_query_report_file.puts "Called from: #{executed_sql.called_from}"
+        readonly_query_report_file.puts "- SQL: #{executed_sql.sql} <br/>"
+        readonly_query_report_file.puts "- Called from: #{executed_sql.called_from.gsub('\'', '`')} <br/>"
       end
 
-      readonly_query_report_file.puts "\n"
+      readonly_query_report_file.puts "<br/>"
     end
   end
 end

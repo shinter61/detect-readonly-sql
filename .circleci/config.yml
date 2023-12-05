@@ -1,0 +1,40 @@
+version: 2.1
+
+defaults: &defaults
+  working_directory: ~/detect_readonly_sql
+  docker:
+    - image: cimg/ruby:3.1.2
+      environment:
+        RAILS_ENV: test
+    - image: cimg/mysql:8.0
+      environment:
+        MYSQL_ROOT_PASSWORD: password
+
+jobs:
+  rspec:
+    <<: *defaults
+    steps:
+      - checkout
+      - run: bundle install -j4
+      - run: bundle exec rails db:create db:migrate
+      - run: bundle exec rspec
+      - run:
+          name: Report readonly testcase
+          command: |
+            PR_NUMBER=${CIRCLE_PULL_REQUEST##*/}
+
+            val=$(cat ./readonly_query_report.txt)
+            echo -e "{\"body\":\"$val\"}" | curl \
+              -s \
+              -X POST \
+              -H "Authorization: token $GITHUB_TOKEN" \
+              https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/issues/$PR_NUMBER/comments \
+              -d @-
+
+workflows:
+  version: 2
+  prepare_and_test:
+    jobs:
+      - rspec:
+          context:
+            - detect-readonly-sql
