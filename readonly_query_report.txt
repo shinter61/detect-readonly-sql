@@ -2,7 +2,17 @@ example: TweetsController#index 正常時
 SQL: SELECT `users`.* FROM `users` ORDER BY `users`.`id` ASC LIMIT 1
 Called from: /app/app/controllers/tweets_controller.rb:3:in `index'
 SQL: SELECT `tweets`.* FROM `tweets` WHERE `tweets`.`user_id` = 1
-Called from: /app/app/controllers/tweets_controller.rb:4:in `index'
+Called from: /app/app/controllers/tweets_controller.rb:5:in `index'
+
+example: TweetsController#create 正常時
+SQL: SELECT `users`.* FROM `users` ORDER BY `users`.`id` ASC LIMIT 1
+Called from: /app/app/controllers/tweets_controller.rb:9:in `create'
+SQL: SAVEPOINT active_record_1
+Called from: /app/app/controllers/tweets_controller.rb:11:in `create'
+SQL: INSERT INTO `tweets` (`post`, `user_id`, `created_at`, `updated_at`) VALUES ('I\'m fine', 1, '2023-12-05 11:08:41.327324', '2023-12-05 11:08:41.327324')
+Called from: /app/app/controllers/tweets_controller.rb:11:in `create'
+SQL: RELEASE SAVEPOINT active_record_1
+Called from: /app/app/controllers/tweets_controller.rb:11:in `create'
 
 example: UsersController#index 正常時
 SQL: SELECT `users`.* FROM `users`
@@ -11,4 +21,12 @@ Called from: /app/app/controllers/users_controller.rb:4:in `index'
 example: UsersController#show 正常時
 SQL: SELECT `users`.* FROM `users` WHERE `users`.`id` = 1 LIMIT 1
 Called from: /app/app/controllers/users_controller.rb:8:in `show'
+
+example: UsersController#create 正常時
+SQL: SAVEPOINT active_record_1
+Called from: /app/app/controllers/users_controller.rb:13:in `create'
+SQL: INSERT INTO `users` (`name`, `created_at`, `updated_at`) VALUES ('hoge', '2023-12-05 11:08:41.381449', '2023-12-05 11:08:41.381449')
+Called from: /app/app/controllers/users_controller.rb:13:in `create'
+SQL: RELEASE SAVEPOINT active_record_1
+Called from: /app/app/controllers/users_controller.rb:13:in `create'
 
