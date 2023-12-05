@@ -12,23 +12,15 @@ defaults: &defaults
         MYSQL_ROOT_PASSWORD: password
 
 jobs:
-  prepare:
-    <<: *defaults
-    steps:
-      - checkout
-      - run: bundle install -j4
-
   rspec:
     <<: *defaults
     steps:
       - checkout
+      - run: bundle install -j4
       - run: bundle exec rspec
 
 workflows:
   version: 2
   prepare_and_test:
     jobs:
-      - prepare
       - rspec:
-          requires:
-            - prepare
