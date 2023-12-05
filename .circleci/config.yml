@@ -23,12 +23,12 @@ jobs:
           command: |
             PR_NUMBER=${CIRCLE_PULL_REQUEST##*/}
 
-            curl \
+            echo ~/readonly_query_report.txt | { v=$(cat) ; curl \
               -s \
               -X POST \
               -H "Authorization: token $GITHUB_TOKEN" \
               https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/issues/$PR_NUMBER/comments \
-              -d '{"body": "Readonly endpoint exists!"}'
+              -d '{"body": "$v"}' }
 
 workflows:
   version: 2
