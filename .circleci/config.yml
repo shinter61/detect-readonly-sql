@@ -24,7 +24,7 @@ jobs:
             PR_NUMBER=${CIRCLE_PULL_REQUEST##*/}
 
             val=$(cat ./readonly_query_report.txt)
-            echo '{"body":"$val"}' | curl \
+            echo "{"body":"$val"}" | curl \
               -s \
               -X POST \
               -H "Authorization: token $GITHUB_TOKEN" \
