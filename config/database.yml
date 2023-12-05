@@ -13,14 +13,12 @@ default: &default
   adapter: mysql2
   encoding: utf8mb4
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  username: root
-  password:
-  host: localhost
+  username: <%= ENV['DB_USERNAME']||'root' %>
+  password: <%= ENV['DB_PASSWORD']||'password' %>
+  host: <%= ENV['DB_HOSTNAME']||'127.0.0.1' %>
 
 development:
   <<: *default
-  host: db
-  password: password
   database: rails_db_tuning_development
 
 # Warning: The database defined as "test" will be erased and
