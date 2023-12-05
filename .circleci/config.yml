@@ -23,12 +23,13 @@ jobs:
           command: |
             PR_NUMBER=${CIRCLE_PULL_REQUEST##*/}
 
-            echo ~/readonly_query_report.txt | { v=$(cat) ; curl \
+            val = $(cat ./readonly_query_report.txt)
+            curl \
               -s \
               -X POST \
               -H "Authorization: token $GITHUB_TOKEN" \
               https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/issues/$PR_NUMBER/comments \
-              -d '{"body": "$v"}' }
+              -d '{"body": "$val"}'
 
 workflows:
   version: 2
