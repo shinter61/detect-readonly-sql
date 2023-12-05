@@ -23,4 +23,4 @@ workflows:
   version: 2
   prepare_and_test:
     jobs:
-      - rspec:
+      - rspec
