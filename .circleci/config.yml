@@ -24,12 +24,12 @@ jobs:
             PR_NUMBER=${CIRCLE_PULL_REQUEST##*/}
 
             val=$(cat ./readonly_query_report.txt)
-            curl \
+            echo '{"body":"$val"}' | curl \
               -s \
               -X POST \
               -H "Authorization: token $GITHUB_TOKEN" \
               https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/issues/$PR_NUMBER/comments \
-              -d "{'body': '$val'}"
+              -d @-
 
 workflows:
   version: 2
