@@ -6,7 +6,6 @@ defaults: &defaults
     - image: cimg/ruby:3.1.2
       environment:
         RAILS_ENV: test
-        DB_HOSTNAME: localhost
     - image: cimg/mysql:8.0
       environment:
         MYSQL_ROOT_PASSWORD: password
