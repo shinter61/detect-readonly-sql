@@ -16,6 +16,7 @@ jobs:
     steps:
       - checkout
       - run: bundle install -j4
+      - run: bundle exec rails db:create db:migrate
       - run: bundle exec rspec
 
 workflows:
