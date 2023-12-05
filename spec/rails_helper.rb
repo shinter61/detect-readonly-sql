@@ -55,9 +55,6 @@ class SQLLogger < ActiveSupport::LogSubscriber
     # 実行された SQL を context と共に配列に入れる
     current_example = $executed_queries.keys.last
 
-    # $executed_queries[current_example] << "SQL: #{event.payload[:sql]}"
-    # $executed_queries[current_example] << "Called from: #{app_called_lines.join("\n")}"
-
     $executed_queries[current_example] << ExecutedSQL.new(
       sql: event.payload[:sql],
       called_from: app_called_lines.join("\n")
