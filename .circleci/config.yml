@@ -23,7 +23,7 @@ jobs:
           command: |
             PR_NUMBER=${CIRCLE_PULL_REQUEST##*/}
 
-            val = $(cat ./readonly_query_report.txt)
+            val=$(cat ./readonly_query_report.txt)
             curl \
               -s \
               -X POST \
