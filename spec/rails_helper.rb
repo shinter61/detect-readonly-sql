@@ -124,11 +124,11 @@ RSpec.configure do |config|
       # その example でのクエリが readonly か判定
       next unless $executed_queries[example].map(&:sql).all? { |sql| sql.slice(0..5) == 'SELECT' }
 
-      readonly_query_report_file.puts "## example: #{example}"
+      readonly_query_report_file.puts "## example: #{example}\n"
 
       $executed_queries[example].each do |executed_sql|
-        readonly_query_report_file.puts "- SQL: #{executed_sql.sql}"
-        readonly_query_report_file.puts "- Called from: #{executed_sql.called_from}"
+        readonly_query_report_file.puts "- SQL: #{executed_sql.sql}\n"
+        readonly_query_report_file.puts "- Called from: #{executed_sql.called_from}\n"
       end
 
       readonly_query_report_file.puts "\n"
