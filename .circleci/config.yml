@@ -18,9 +18,22 @@ jobs:
       - run: bundle install -j4
       - run: bundle exec rails db:create db:migrate
       - run: bundle exec rspec
+      - run:
+          name: Report readonly testcase
+          command: |
+            PR_NUMBER=${CIRCLE_PULL_REQUEST##*/}
+
+            curl \
+              -s \
+              -X POST \
+              -H "Authorization: token $GITHUB_TOKEN" \
+              https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/issues/$PR_NUMBER/comments \
+              -d {"body": "Readonly endpoint exists!"}
 
 workflows:
   version: 2
   prepare_and_test:
     jobs:
       - rspec
+          context:
+            - detect-readonly-sql
