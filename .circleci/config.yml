@@ -24,6 +24,10 @@ jobs:
             PR_NUMBER=${CIRCLE_PULL_REQUEST##*/}
 
             val=$(cat ./readonly_query_report.txt)
+            echo $CIRCLE_PROJECT_USERNAME
+            echo $CIRCLE_PROJECT_REPONAME
+            echo $PR_NUMBER
+            echo "{"body":"$val"}" 
             echo "{"body":"$val"}" | curl \
               -s \
               -X POST \
