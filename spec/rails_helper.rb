@@ -124,6 +124,9 @@ RSpec.configure do |config|
 
     examples = $executed_queries.keys
     examples.each do |example|
+      # その example でのクエリが readonly か判定
+      next unless $executed_queries[example].map(&:sql).all? { |sql| sql.slice(0..5) == 'SELECT' }
+
       readonly_query_report_file.puts "example: #{example}"
 
       $executed_queries[example].each do |executed_sql|
