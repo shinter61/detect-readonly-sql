@@ -1,0 +1,34 @@
+version: 2.1
+
+defaults: &defaults
+  working_directory: ~/detect_readonly_sql
+  docker:
+    - image: cimg/ruby:3.1.2
+      environment:
+        RAILS_ENV: test
+        DB_HOSTNAME: db
+    - image: cimg/mysql:8.0
+      environment:
+        MYSQL_ROOT_PASSWORD: password
+
+jobs:
+  prepare:
+    <<: *defaults
+    steps:
+      - run: bundle install -j4
+
+  rspec:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run: bundle exec rspec
+
+workflows:
+  version: 2
+  prepare_and_test:
+    jobs:
+      - prepare
+      - rspec:
+          requires:
+            - prepare
