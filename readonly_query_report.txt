@@ -1,0 +1,8 @@
+UsersController#index 正常時
+SQL: SELECT `users`.* FROM `users`
+Called from: /app/app/controllers/users_controller.rb:4:in `index'
+
+UsersController#show 正常時
+SQL: SELECT `users`.* FROM `users` WHERE `users`.`id` = 1 LIMIT 1
+Called from: /app/app/controllers/users_controller.rb:8:in `show'
+

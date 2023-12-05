@@ -30,8 +30,43 @@ rescue ActiveRecord::PendingMigrationError => e
   abort e.to_s.strip
 end
 
+# app, SQL log を spec でも標準出力に吐き出す
 Rails.logger = Logger.new(STDOUT)
 ActiveRecord::Base.logger = Logger.new(STDOUT)
+
+$executed_queries = {}
+
+# SQL custom logger
+class SQLLogger < ActiveSupport::LogSubscriber
+  def sql(event)
+    # トランザクション開始・終了クエリは readonly なので外す
+    # SHOW から始まるクエリは readonly なので外す
+    return if event.payload[:sql] =~ /\A\s*(BEGIN|COMMIT|ROLLBACK|SHOW)/
+
+    # ActiveRecord による information_schema への schema 問い合わせクエリも readonly なので外す
+    return if event.payload[:sql].include? 'information_schema'
+
+    # app 側で意図的に発行したクエリのコード上のクエリ実行位置を出力
+    # spec のファイル名からそのコントローラーだけの stacktrace を出せるとより良いかも
+    app_called_lines = caller.select { |called_line| called_line.include? "app/controllers" }
+    return if app_called_lines.empty?
+
+    # 実行された SQL を context と共に配列に入れる
+    current_example = $executed_queries.keys.last
+    $executed_queries[current_example] << "SQL: #{event.payload[:sql]}"
+    $executed_queries[current_example] << "Called from: #{app_called_lines.join("\n")}"
+  end
+end
+
+# SQL(Active Record) の実行に合わせて hook
+SQLLogger.attach_to :active_record
+
+# 現在実行中の example について実行された SQL の配列を初期化
+class ReporterListener
+  def example_started(notification)
+    $executed_queries[:"#{notification.example.metadata[:full_description]}"] = []
+  end
+end
 
 RSpec.configure do |config|
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
@@ -64,4 +99,37 @@ RSpec.configure do |config|
   config.filter_rails_from_backtrace!
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
+  
+  # config.before(:suite) do
+  #   ActiveSupport::Notifications.subscribe("sql.active_record") do |_name, _started, _finished, _unique_id, data|
+  #     binding.pry
+  #   end
+  # end
+
+  # readonly なクエリのレポート用
+  config.reporter.register_listener(ReporterListener.new, :example_started)
+
+  config.before(:suite) do
+    # 冪等性のためにレポート用ファイルを削除
+    readonly_query_report_filename = 'readonly_query_report.txt'
+    File.delete(readonly_query_report_filename) if File.exists?(readonly_query_report_filename)
+  end
+
+  # 全テスト終了時に、readonly なクエリをファイルに書き出す
+  config.after(:suite) do
+    # レポート用のファイルを作成
+    readonly_query_report_filename = 'readonly_query_report.txt'
+    readonly_query_report_file = File.new(readonly_query_report_filename, 'w')
+
+    examples = $executed_queries.keys
+    examples.each do |example|
+      readonly_query_report_file.puts "example: #{example}"
+
+      $executed_queries[example].each do |log|
+        readonly_query_report_file.puts log
+      end
+
+      readonly_query_report_file.puts "\n"
+    end
+  end
 end
