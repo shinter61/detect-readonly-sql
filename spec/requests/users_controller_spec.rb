@@ -34,4 +34,22 @@ describe UsersController, type: :request do
       is_expected.to eq 204
     end
   end
+
+  describe '#update' do
+    before do
+      user = User.create(id: 1, name: 'matsumoto')
+      tweet = Tweet.new(id: 1, post: 'hello')
+      tweet2 = Tweet.new(id: 2, post: 'goodbye')
+      user.tweets << [tweet, tweet2]
+    end
+
+    subject { put "/users/#{id}", params: }
+    
+    let(:params) { { name: 'hoge' } }
+    let(:id) { 1 }
+
+    it '正常時' do
+      is_expected.to eq 204
+    end
+  end
 end
