@@ -31,3 +31,5 @@
 /config/master.key
 
 .env
+
+readonly_query_report.txt
