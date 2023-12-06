@@ -17,7 +17,7 @@ jobs:
       - checkout
       - run: bundle install -j4
       - run: bundle exec rails db:create db:migrate
-      - run: bundle exec rspec
+      - run: bundle exec parallel_rspec -n 4
       - run:
           name: Report readonly testcase
           command: |
