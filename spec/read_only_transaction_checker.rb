@@ -6,26 +6,36 @@ class ReadOnlyTransactionChecker
     @readonly_transactions = []
   end
 
+  def check!
+    divide_to_transaction!
+    find_readonly_transaction!
+  end
+
   # example 単位で readonly か判定
   def readonly_example?
-    @queries
-      .reject { |query| query.called_from.empty? } # 呼び出し元がない = ActiveRecord によるメタなクエリなので除外
-      .map(&:sql)
-      .all? { |sql| sql.slice(0..5) == 'SELECT' }
+    transactions.length == readonly_transactions.length
   end
 
   # transaction 単位で readonly なものがないか判定
   def readonly_transactions
     return @readonly_transactions if @readonly_transactions.present?
 
-    divide_to_transaction!
+    find_readonly_transaction!
+  end
 
-    @readonly_transactions = @transactions.filter do |transaction|
+  def find_readonly_transaction!
+    @readonly_transactions = transactions.filter do |transaction|
       transaction
         .map(&:sql)
         .reject { |sql| sql.include?('SAVEPOINT') || sql.include?('ROLLBACK') } # トランザクション開始・終了のstmtは除外
         .all? { |sql| sql.slice(0..5) == 'SELECT' }
     end
+  end
+
+  def transactions
+    return @transactions if @transactions.present?
+
+    divide_to_transaction!
   end
 
   def divide_to_transaction!
