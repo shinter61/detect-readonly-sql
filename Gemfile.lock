@@ -141,6 +141,9 @@ GEM
       racc (~> 1.4)
     nokogiri (1.15.4-x86_64-linux)
       racc (~> 1.4)
+    parallel (1.23.0)
+    parallel_tests (4.3.0)
+      parallel
     pry (0.14.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
@@ -254,6 +257,7 @@ DEPENDENCIES
   importmap-rails
   jbuilder
   mysql2 (~> 0.5)
+  parallel_tests
   pry
   puma (~> 5.0)
   rails (~> 7.0.7, >= 7.0.7.2)
