@@ -1,24 +1,6 @@
-# README
+# Detect readonly transaction!
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+request spec で実行された SQL を元に、db に対して readonly なコードがないか検知します。  
 
-Things you may want to cover:
-
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+その example （テストケース）に対して全ての SQL が readonly な場合は `[All readonly]`,  
+一部の transaction が readonly な場合は、`[Partial readonly]` の prefix を付けて PR にコメントするようになっています。  
