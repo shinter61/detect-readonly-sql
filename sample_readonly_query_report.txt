@@ -1,0 +1,35 @@
+以下のテストケースが readonly なものです。reader に向けられないか検討してください。<br/>
+[All readonly] example: TweetsController#index 正常時 <br/>
+- SQL: BEGIN <br/>
+- Called from:  <br/>
+- SQL: SELECT `users`.* FROM `users` ORDER BY `users`.`id` ASC LIMIT 1 <br/>
+- Called from: /app/app/controllers/tweets_controller.rb:3:in `index` <br/>
+- SQL: SELECT `tweets`.* FROM `tweets` WHERE `tweets`.`user_id` = 1 <br/>
+- Called from: /app/app/controllers/tweets_controller.rb:5:in `index` <br/>
+- SQL: ROLLBACK <br/>
+- Called from:  <br/>
+<br/>
+[Partial readonly] example: TweetsController#create 正常時 <br/>
+- SQL: SELECT `users`.* FROM `users` ORDER BY `users`.`id` ASC LIMIT 1 <br/>
+- Called from: /app/app/controllers/tweets_controller.rb:9:in `create` <br/>
+<br/>
+[Partial readonly] example: TweetsController#destroy 正常時 <br/>
+- SQL: SELECT `users`.* FROM `users` ORDER BY `users`.`id` ASC LIMIT 1 <br/>
+- Called from: /app/app/controllers/tweets_controller.rb:15:in `destroy` <br/>
+<br/>
+[All readonly] example: UsersController#index 正常時 <br/>
+- SQL: BEGIN <br/>
+- Called from:  <br/>
+- SQL: SELECT `users`.* FROM `users` <br/>
+- Called from: /app/app/controllers/users_controller.rb:4:in `index` <br/>
+- SQL: ROLLBACK <br/>
+- Called from:  <br/>
+<br/>
+[All readonly] example: UsersController#show 正常時 <br/>
+- SQL: BEGIN <br/>
+- Called from:  <br/>
+- SQL: SELECT `users`.* FROM `users` WHERE `users`.`id` = 1 LIMIT 1 <br/>
+- Called from: /app/app/controllers/users_controller.rb:8:in `show` <br/>
+- SQL: ROLLBACK <br/>
+- Called from:  <br/>
+<br/>

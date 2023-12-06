@@ -36,34 +36,8 @@ ActiveRecord::Base.logger = Logger.new(STDOUT)
 
 $executed_queries = {}
 
-# SQL custom logger
-class SQLLogger < ActiveSupport::LogSubscriber
-  ExecutedSQL = Struct.new(:sql, :called_from, keyword_init: true)
-  def sql(event)
-    # トランザクション開始・終了クエリは readonly なので外す
-    # SHOW から始まるクエリは readonly なので外す
-    return if event.payload[:sql] =~ /\A\s*(BEGIN|COMMIT|ROLLBACK|SHOW)/
-
-    # ActiveRecord による information_schema への schema 問い合わせクエリも readonly なので外す
-    return if event.payload[:sql].include? 'information_schema'
-
-    # app 側で意図的に発行したクエリのコード上のクエリ実行位置を出力
-    # spec のファイル名からそのコントローラーだけの stacktrace を出せるとより良いかも
-    app_called_lines = caller.select { |called_line| called_line.include? "app/controllers" }
-    return if app_called_lines.empty?
-
-    # 実行された SQL を context と共に配列に入れる
-    current_example = $executed_queries.keys.last
-
-    $executed_queries[current_example] << ExecutedSQL.new(
-      sql: event.payload[:sql],
-      called_from: app_called_lines.join("\n")
-    )
-  end
-end
-
-# SQL(Active Record) の実行に合わせて hook
-SQLLogger.attach_to :active_record
+require 'sql_logger'
+require 'read_only_transaction_checker'
 
 # 現在実行中の example について実行された SQL の配列を初期化
 class ReporterListener
@@ -123,17 +97,29 @@ RSpec.configure do |config|
 
     examples = $executed_queries.keys
     examples.each do |example|
+      checker = ReadOnlyTransactionChecker.new($executed_queries[example])
       # その example でのクエリが readonly か判定
-      next unless $executed_queries[example].map(&:sql).all? { |sql| sql.slice(0..5) == 'SELECT' }
+      if checker.readonly_example?
+        readonly_query_report_file.puts "[All readonly] example: #{example} <br/>"
 
-      readonly_query_report_file.puts "example: #{example} <br/>"
+        $executed_queries[example].each do |executed_sql|
+          readonly_query_report_file.puts "- SQL: #{executed_sql.sql} <br/>"
+          readonly_query_report_file.puts "- Called from: #{executed_sql.called_from.gsub('\'', '`')} <br/>"
+        end
 
-      $executed_queries[example].each do |executed_sql|
-        readonly_query_report_file.puts "- SQL: #{executed_sql.sql} <br/>"
-        readonly_query_report_file.puts "- Called from: #{executed_sql.called_from.gsub('\'', '`')} <br/>"
+        readonly_query_report_file.puts "<br/>"
+      elsif checker.readonly_transactions.present?
+        readonly_query_report_file.puts "[Partial readonly] example: #{example} <br/>"
+
+        checker.readonly_transactions.each do |transaction|
+          transaction.each do |executed_sql|
+            readonly_query_report_file.puts "- SQL: #{executed_sql.sql} <br/>"
+            readonly_query_report_file.puts "- Called from: #{executed_sql.called_from.gsub('\'', '`')} <br/>"
+          end
+        end
+
+        readonly_query_report_file.puts "<br/>"
       end
-
-      readonly_query_report_file.puts "<br/>"
     end
   end
 end
