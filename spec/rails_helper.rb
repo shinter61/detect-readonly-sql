@@ -98,6 +98,7 @@ RSpec.configure do |config|
     examples = $executed_queries.keys
     examples.each do |example|
       checker = ReadOnlyTransactionChecker.new($executed_queries[example])
+      checker.check!
       # その example でのクエリが readonly か判定
       if checker.readonly_example?
         readonly_query_report_file.puts "[All readonly] example: #{example} <br/>"

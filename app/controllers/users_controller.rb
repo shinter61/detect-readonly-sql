@@ -5,8 +5,15 @@ class UsersController < ApplicationController
   end
 
   def show
-    user = User.find(params[:id])
-    render json: user
+    user = ActiveRecord::Base.transaction do
+      User.find(params[:id])
+    end
+
+    tweets = ActiveRecord::Base.transaction do
+      user.tweets.limit(10)
+    end
+
+    render json: { user: user, tweets: tweets }
   end
 
   def create
